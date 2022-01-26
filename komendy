@@ -1,0 +1,40 @@
+na przykładowym deploymencie nginxdeploy.yaml zadziałała ścieżka:
+
+0. kubectl create ns nginx
+1. kubectl apply -f nginxdeploy.yaml -n nginx
+2. kubectl expose deployment nginx --port=80 --type=NodePort -n nginx
+3. kubectl port-forward --address=0.0.0.0 deployment/nginx 10000:80 -n nginx
+
+
+w 100% na komendach, na budowanym image'u docker zadziałała ścieżka:
+
+
+LOCAL reg:
+
+Start a local registry container:
+docker run -d -p 5000:5000 --restart=always --name registry registry:2
+Do docker images to find out the REPOSITORY and TAG of your local image. Then create a new tag for your local image :
+docker tag <local-image-repository>:<local-image-tag> localhost:5000/<local-image-name>
+If TAG for your local image is <none>, you can simply do:
+
+docker tag <local-image-repository> localhost:5000/<local-image-name>
+Push to local registry :
+docker push localhost:5000/<local-image-name>
+This will automatically add the latest tag to localhost:5000/<local-image-name>. You can check again by doing docker images.
+
+In your yaml file, set imagePullPolicy to IfNotPresent :
+...
+spec:
+  containers:
+  - name: <name>
+    image: localhost:5000/<local-image-name>
+    imagePullPolicy: IfNotPresent
+...
+That's it. Now your ImagePullError should be resolved.
+
+
+
+
+Do pobierania z local registry konieczna zmiana /etc/deocker/daemon.json
+
+{"insecure-registries":["192.168.50.10:5000"]}
