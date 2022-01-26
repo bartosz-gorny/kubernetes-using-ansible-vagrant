@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: ubuntu16
-        image: localregistry.local:5000/ubunciak
+        image: localregistry.local:5000/ubuntu
         imagePullPolicy: IfNotPresent
         command: ["sleep"]
         args: ["10000"]
